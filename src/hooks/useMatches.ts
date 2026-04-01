@@ -1,6 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import type { MatchResult } from '@/lib/database.types'
+import { z } from 'zod'
+
+const JornadaSchema = z.object({
+  nombre: z.string().min(1, 'El nombre es requerido').max(100),
+  orden: z.number().int().min(1).max(100),
+  puntosPorAcierto: z.number().int().min(1).max(50),
+})
+
+const MatchSchema = z.object({
+  equipoA: z.string().min(1).max(100),
+  equipoB: z.string().min(1).max(100),
+  fechaHora: z.string().datetime({ offset: true }).or(z.string().min(1)),
+  estadio: z.string().max(200).optional(),
+})
+
+const ResultadoSchema = z.enum(['A_wins', 'draw', 'B_wins'])
 
 export function useJornadas(pollaId: string | undefined) {
   return useQuery({
@@ -50,6 +66,7 @@ export function useCreateJornada() {
       orden: number
       puntosPorAcierto: number
     }) => {
+      JornadaSchema.parse({ nombre, orden, puntosPorAcierto })
       const { data, error } = await supabase
         .from('jornadas')
         .insert({ polla_id: pollaId, nombre, orden, puntos_por_acierto: puntosPorAcierto })
@@ -82,6 +99,7 @@ export function useCreateMatch() {
       fechaHora: string
       estadio?: string
     }) => {
+      MatchSchema.parse({ equipoA, equipoB, fechaHora, estadio })
       const { data, error } = await supabase
         .from('matches')
         .insert({
@@ -122,6 +140,11 @@ export function useUpdateMatch() {
         resultado?: MatchResult
       }
     }) => {
+      if (updates.resultado !== undefined && updates.resultado !== null) {
+        ResultadoSchema.parse(updates.resultado)
+      }
+      if (updates.equipo_a !== undefined) z.string().min(1).max(100).parse(updates.equipo_a)
+      if (updates.equipo_b !== undefined) z.string().min(1).max(100).parse(updates.equipo_b)
       const { error } = await supabase
         .from('matches')
         .update(updates)

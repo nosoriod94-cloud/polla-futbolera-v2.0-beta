@@ -22,6 +22,15 @@ Deno.serve(async (req) => {
     return new Response('Method not allowed', { status: 405 })
   }
 
+  // Validar Bearer token para que solo el cron autorizado pueda invocar esta función
+  const cronSecret = Deno.env.get('CRON_SECRET')
+  if (cronSecret) {
+    const authHeader = req.headers.get('Authorization')
+    if (authHeader !== `Bearer ${cronSecret}`) {
+      return new Response('Unauthorized', { status: 401 })
+    }
+  }
+
   const supabase = createClient(supabaseUrl, serviceRoleKey)
 
   // Buscar partidos que cerraron en el último minuto

@@ -12,7 +12,7 @@ import { Plus, CheckCircle, Shield, LogOut, ToggleLeft, ToggleRight, Users, Chev
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
-const SUPERADMIN_ID = import.meta.env.VITE_SUPERADMIN_USER_ID
+const SUPERADMIN_EMAIL = import.meta.env.VITE_SUPERADMIN_EMAIL
 
 export default function SuperAdmin() {
   const { user, signOut } = useAuth()
@@ -28,8 +28,8 @@ export default function SuperAdmin() {
   const toggleActive = useToggleLicenseActive()
   const resolveRequest = useResolveLimitRequest()
 
-  // Bloquear si no es superadmin
-  if (!SUPERADMIN_ID || user?.id !== SUPERADMIN_ID) {
+  // Bloquear si no es superadmin (la protección real está en las RPCs de Supabase)
+  if (!user || !SUPERADMIN_EMAIL || user.email !== SUPERADMIN_EMAIL) {
     navigate('/superadmin/login', { replace: true })
     return null
   }
@@ -84,7 +84,7 @@ export default function SuperAdmin() {
           <h1 className="font-bold text-lg flex items-center gap-2">
             <Shield className="h-5 w-5 text-purple-400" /> Panel del sistema
           </h1>
-          <p className="text-xs text-slate-400">hola@pollafutbolera.online</p>
+          <p className="text-xs text-slate-400">{user.email}</p>
         </div>
         <Button
           variant="ghost"

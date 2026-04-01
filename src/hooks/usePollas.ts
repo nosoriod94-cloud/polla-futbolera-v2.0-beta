@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
+import { z } from 'zod'
+
+const PollaNombreSchema = z.string().min(3, 'El nombre debe tener al menos 3 caracteres').max(100)
 
 export function useMyPollas() {
   const { user } = useAuth()
@@ -74,6 +77,7 @@ export function useCreatePolla() {
   const { user } = useAuth()
   return useMutation({
     mutationFn: async (nombre: string) => {
+      PollaNombreSchema.parse(nombre)
       // 1. Crear la polla (invite_code se genera automáticamente via trigger)
       const { data: polla, error: pollaErr } = await supabase
         .from('pollas')
@@ -172,11 +176,11 @@ export function useAllLicenses() {
 
 export function useGrantLicense() {
   const qc = useQueryClient()
-  const superadminId = import.meta.env.VITE_SUPERADMIN_USER_ID
+  const { user } = useAuth()
   return useMutation({
     mutationFn: async (email: string) => {
       const { error } = await supabase
-        .rpc('grant_license', { p_superadmin_id: superadminId, p_email: email })
+        .rpc('grant_license', { p_superadmin_id: user!.id, p_email: email })
       if (error) throw new Error(error.message)
     },
     onSuccess: () => {
@@ -187,11 +191,11 @@ export function useGrantLicense() {
 
 export function useToggleLicenseActive() {
   const qc = useQueryClient()
-  const superadminId = import.meta.env.VITE_SUPERADMIN_USER_ID
+  const { user } = useAuth()
   return useMutation({
     mutationFn: async ({ email, active }: { email: string; active: boolean }) => {
       const { error } = await supabase.rpc('toggle_license_active', {
-        p_superadmin_id: superadminId,
+        p_superadmin_id: user!.id,
         p_email: email,
         p_active: active,
       })

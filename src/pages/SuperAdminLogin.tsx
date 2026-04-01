@@ -8,8 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast'
 import { Shield } from 'lucide-react'
 
-const SUPERADMIN_EMAIL = 'hola@pollafutbolera.online'
-const SUPERADMIN_ID = import.meta.env.VITE_SUPERADMIN_USER_ID
+const SUPERADMIN_EMAIL = import.meta.env.VITE_SUPERADMIN_EMAIL
 
 export default function SuperAdminLogin() {
   const { signIn, user } = useAuth()
@@ -20,7 +19,7 @@ export default function SuperAdminLogin() {
   const [loading, setLoading] = useState(false)
 
   // Si ya está logueado como superadmin, redirigir directo
-  if (user?.id === SUPERADMIN_ID) {
+  if (user && SUPERADMIN_EMAIL && user.email === SUPERADMIN_EMAIL) {
     navigate('/superadmin', { replace: true })
     return null
   }
@@ -73,7 +72,7 @@ export default function SuperAdminLogin() {
                 <Label className="text-slate-300 text-sm">Correo</Label>
                 <Input
                   type="email"
-                  placeholder="hola@pollafutbolera.online"
+                  placeholder="correo@ejemplo.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"

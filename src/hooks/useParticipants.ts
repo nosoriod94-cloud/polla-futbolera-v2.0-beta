@@ -2,6 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import type { ParticipantStatus } from '@/lib/database.types'
+import { z } from 'zod'
+
+const ApodoSchema = z.string()
+  .min(2, 'El apodo debe tener al menos 2 caracteres')
+  .max(50, 'El apodo no puede superar 50 caracteres')
+  .regex(/^[a-zA-Z0-9 ÁÉÍÓÚáéíóúÑñüÜ._'-]+$/, 'El apodo contiene caracteres no permitidos')
 
 // Para uso del Admin: incluye profiles(nombre_completo) para identificar al usuario
 export function useParticipants(pollaId: string | undefined) {
@@ -61,6 +67,7 @@ export function useJoinPolla() {
   const { user } = useAuth()
   return useMutation({
     mutationFn: async ({ pollaId, apodo }: { pollaId: string; apodo: string }) => {
+      ApodoSchema.parse(apodo)
       const { data, error } = await supabase
         .from('polla_participants')
         .insert({ polla_id: pollaId, user_id: user!.id, apodo, status: 'pending' })
@@ -157,7 +164,7 @@ export function useLimitRequest(pollaId: string | undefined) {
 // SuperAdmin: resuelve una solicitud (aprueba o rechaza)
 export function useResolveLimitRequest() {
   const qc = useQueryClient()
-  const superadminId = import.meta.env.VITE_SUPERADMIN_USER_ID
+  const { user } = useAuth()
   return useMutation({
     mutationFn: async ({
       requestId,
@@ -169,7 +176,7 @@ export function useResolveLimitRequest() {
       notes?: string
     }) => {
       const { error } = await supabase.rpc('resolve_limit_request', {
-        p_superadmin_id: superadminId,
+        p_superadmin_id: user!.id,
         p_request_id: requestId,
         p_status: status,
         p_notes: notes ?? null,

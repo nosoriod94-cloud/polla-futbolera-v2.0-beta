@@ -38,12 +38,20 @@ export default function Auth() {
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
-    if (regPassword !== regPasswordConfirm) {
-      toast({ title: 'Las contraseñas no coinciden', variant: 'destructive' })
-      return
-    }
     if (regNombre.trim().length < 2) {
       toast({ title: 'Ingresa tu nombre completo', variant: 'destructive' })
+      return
+    }
+    if (regPassword.length < 8) {
+      toast({ title: 'Contraseña muy corta', description: 'Debe tener al menos 8 caracteres.', variant: 'destructive' })
+      return
+    }
+    if (!/(?=.*[A-Z])/.test(regPassword) || !/(?=.*[0-9])/.test(regPassword)) {
+      toast({ title: 'Contraseña débil', description: 'Debe incluir al menos una mayúscula y un número.', variant: 'destructive' })
+      return
+    }
+    if (regPassword !== regPasswordConfirm) {
+      toast({ title: 'Las contraseñas no coinciden', variant: 'destructive' })
       return
     }
     setLoading(true)
@@ -134,10 +142,10 @@ export default function Auth() {
                     <Input
                       id="reg-password"
                       type="password"
-                      placeholder="Mínimo 6 caracteres"
+                      placeholder="Mínimo 8 caracteres, 1 mayúscula y 1 número"
                       value={regPassword}
                       onChange={e => setRegPassword(e.target.value)}
-                      minLength={6}
+                      minLength={8}
                       required
                     />
                   </div>
