@@ -15,6 +15,7 @@ import Perfil from "./pages/Perfil";
 import SuperAdmin from "./pages/SuperAdmin";
 import SuperAdminLogin from "./pages/SuperAdminLogin";
 import ClientAdmin from "./pages/ClientAdmin";
+import ClientAdminLogin from "./pages/ClientAdminLogin";
 import ClientAdminRegister from "./pages/ClientAdminRegister";
 import NotFound from "./pages/NotFound";
 
@@ -89,7 +90,7 @@ const App = () => (
 
             {/* Cliente Admin — registro con código y panel */}
             <Route path="/client-admin/register" element={<ClientAdminRegister />} />
-            <Route path="/client-admin/login" element={<Auth />} />
+            <Route path="/client-admin/login" element={<ClientAdminLogin />} />
             <Route
               path="/client-admin"
               element={
