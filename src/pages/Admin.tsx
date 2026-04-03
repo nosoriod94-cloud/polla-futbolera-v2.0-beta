@@ -191,28 +191,50 @@ function downloadTemplate(jornadaNames: string[]) {
   const wb = XLSX.utils.book_new()
 
   const data = [
-    // Fila de instrucciones (visible al abrir el archivo)
-    ['INSTRUCCIONES: Llena desde la fila 3. La columna "jornada" debe coincidir exactamente con una jornada creada en la polla. La fecha va en formato dd/mm/aaaa y la hora en HH:mm (hora Colombia).', '', '', '', '', ''],
-    // Encabezados
-    ['jornada', 'equipo_a', 'equipo_b', 'fecha', 'hora_bogota', 'estadio'],
-    // Ejemplos
-    [jornadaNames[0] ?? 'Jornada 1', 'Colombia', 'Brasil', '15/06/2026', '20:00', 'MetLife Stadium'],
-    [jornadaNames[0] ?? 'Jornada 1', 'Argentina', 'México', '16/06/2026', '17:00', ''],
+    // Fila 1: instrucciones
+    [
+      '⚠️ INSTRUCCIONES: Llena desde la fila 3. ' +
+      '"jornada" debe coincidir exactamente con la jornada de la polla. ' +
+      'FECHA: formato Colombia DD/MM/AAAA (ej: 15/06/2026 = 15 de junio). ' +
+      'HORA: hora Colombia, ej: 20:00 o 8 pm.',
+      '', '', '', '', '',
+    ],
+    // Fila 2: encabezados
+    ['jornada', 'equipo_a', 'equipo_b', 'fecha  (DD/MM/AAAA)', 'hora_bogota', 'estadio'],
+    // Filas de ejemplo
+    [jornadaNames[0] ?? 'Jornada 1', 'Colombia', 'Brasil',    '15/06/2026', '20:00', 'MetLife Stadium'],
+    [jornadaNames[0] ?? 'Jornada 1', 'Argentina', 'México',   '16/06/2026', '17:00', ''],
   ]
 
   const ws = XLSX.utils.aoa_to_sheet(data)
+
+  // ── Pre-formatear las columnas fecha (D) y hora (E) como Texto ──────────────
+  // Esto evita que Excel interprete las fechas/horas según la configuración
+  // regional del computador del usuario (que podría cambiar DD/MM por MM/DD).
+  // Filas 3-52 cubre hasta 50 partidos; celdas vacías con format '@' (texto).
+  for (let r = 2; r < 52; r++) {
+    const fechaAddr = XLSX.utils.encode_cell({ r, c: 3 })
+    const horaAddr  = XLSX.utils.encode_cell({ r, c: 4 })
+    if (!ws[fechaAddr]) ws[fechaAddr] = { t: 's', v: '' }
+    ws[fechaAddr].z = '@'  // format code '@' = texto
+    if (!ws[horaAddr])  ws[horaAddr]  = { t: 's', v: '' }
+    ws[horaAddr].z  = '@'
+  }
+
+  // Actualizar el rango del sheet para incluir las celdas pre-formateadas
+  ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: 51, c: 5 } })
 
   // Ancho de columnas
   ws['!cols'] = [
     { wch: 22 }, // jornada
     { wch: 16 }, // equipo_a
     { wch: 16 }, // equipo_b
-    { wch: 14 }, // fecha
+    { wch: 20 }, // fecha
     { wch: 13 }, // hora_bogota
     { wch: 22 }, // estadio
   ]
 
-  // Combinar celda de instrucciones para que abarque todas las columnas
+  // Combinar instrucciones en toda la fila 1
   ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }]
 
   XLSX.utils.book_append_sheet(wb, ws, 'Partidos')
