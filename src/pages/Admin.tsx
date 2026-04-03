@@ -27,21 +27,41 @@ import { es } from 'date-fns/locale'
 /** Convierte un valor de datetime-local en hora Bogotá a ISO UTC string */
 function bogotaInputToUTC(localValue: string): string {
   // localValue: "YYYY-MM-DDTHH:mm" interpretado como UTC-5
-  return new Date(localValue + ':00-05:00').toISOString()
+  const d = new Date(localValue + ':00-05:00')
+  if (isNaN(d.getTime())) throw new Error(`Fecha inválida: ${localValue}`)
+  return d.toISOString()
 }
 
-/** Convierte un ISO UTC string al valor datetime-local en hora Bogotá */
+/** Convierte un ISO UTC string al valor datetime-local en hora Bogotá.
+ *  Usa getUTC* sobre el timestamp desplazado para evitar que date-fns
+ *  o el browser apliquen una segunda corrección de timezone. */
 function utcToBogotaInput(utcStr: string): string {
-  const utcMs = new Date(utcStr).getTime()
-  const bogotaMs = utcMs - 5 * 60 * 60 * 1000
-  return new Date(bogotaMs).toISOString().slice(0, 16)
+  try {
+    const d = new Date(utcStr)
+    if (isNaN(d.getTime())) return ''
+    // Desplazamos -5h y leemos en UTC para obtener la hora local de Colombia
+    const col = new Date(d.getTime() - 5 * 60 * 60 * 1000)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return `${col.getUTCFullYear()}-${pad(col.getUTCMonth() + 1)}-${pad(col.getUTCDate())}T${pad(col.getUTCHours())}:${pad(col.getUTCMinutes())}`
+  } catch {
+    return ''
+  }
 }
 
-/** Formatea un ISO UTC string como hora Bogotá legible */
+/** Formatea un ISO UTC string como hora Colombia legible.
+ *  Usa getUTC* (no date-fns format) para evitar que el browser
+ *  aplique su propia timezone encima del desplazamiento ya calculado. */
 function formatBogota(utcStr: string): string {
-  const utcMs = new Date(utcStr).getTime()
-  const bogotaDate = new Date(utcMs - 5 * 60 * 60 * 1000)
-  return format(bogotaDate, "d MMM yyyy, HH:mm", { locale: es }) + ' Col'
+  try {
+    const d = new Date(utcStr)
+    if (isNaN(d.getTime())) return '—'
+    const col = new Date(d.getTime() - 5 * 60 * 60 * 1000)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+    return `${col.getUTCDate()} ${months[col.getUTCMonth()]} ${col.getUTCFullYear()}, ${pad(col.getUTCHours())}:${pad(col.getUTCMinutes())} Col`
+  } catch {
+    return '—'
+  }
 }
 
 // ─── CSV helpers ─────────────────────────────────────────────────────────────
