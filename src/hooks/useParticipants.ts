@@ -62,7 +62,7 @@ export function useParticipants(pollaId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('polla_participants')
-        .select('*, profiles(nombre_completo)')
+        .select('*')
         .eq('polla_id', pollaId!)
         .order('created_at', { ascending: true })
       if (error) throw error

@@ -518,15 +518,15 @@ export default function Admin() {
               </CardContent>
             </Card>
           ) : (
-            participants.map(p => {
-              const profile = p.profiles as unknown as { nombre_completo: string } | null
-              return (
+            participants.map(p => (
                 <Card key={p.id}>
                   <CardContent className="py-3 px-4">
                     <div className="flex items-center justify-between gap-2">
                       <div className="min-w-0">
                         <p className="font-medium text-sm truncate">{p.apodo}</p>
-                        <p className="text-xs text-muted-foreground truncate">{profile?.nombre_completo}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {p.status === 'pending' ? 'Solicitud pendiente' : p.status === 'blocked' ? 'Bloqueado' : 'Autorizado'}
+                        </p>
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
                         {p.status === 'pending' && (
@@ -581,8 +581,7 @@ export default function Admin() {
                     </div>
                   </CardContent>
                 </Card>
-              )
-            })
+            ))
           )}
         </TabsContent>
 
