@@ -11,81 +11,81 @@
   :root {
     /* ── Fondos ─────────────────────────────── */
     --background:        222 22% 5%;    /* #09090F — negro profundo con tinte azul */
-    --foreground:        210 15% 92%;   /* #E4E9F0 — blanco suave */
+    --foreground:        210 20% 95%;   /* blanco brillante — mayor legibilidad */
 
-    --card:              224 20% 8%;    /* #0F1219 — panel oscuro */
-    --card-foreground:   210 15% 92%;
+    --card:              224 22% 15%;   /* panel claramente visible sobre el fondo */
+    --card-foreground:   210 20% 95%;
 
-    --popover:           224 20% 9%;
-    --popover-foreground: 210 15% 92%;
+    --popover:           224 22% 16%;
+    --popover-foreground: 210 20% 95%;
 
     /* ── Primary: Verde Tech ────────────────── */
-    --primary:           142 70% 45%;   /* #22C55E vívido — verde campo/estadio */
+    --primary:           142 72% 48%;   /* verde vívido — verde campo/estadio */
     --primary-foreground: 222 22% 5%;  /* texto oscuro sobre verde */
 
     /* ── Secondary: Azul Tech ───────────────── */
-    --secondary:         199 88% 48%;   /* #08B4F8 — azul marcador digital */
+    --secondary:         199 90% 52%;   /* azul marcador digital */
     --secondary-foreground: 222 22% 5%;
 
     /* ── Muted / Silenciados ────────────────── */
-    --muted:             224 18% 13%;   /* #191F30 */
-    --muted-foreground:  218 14% 52%;   /* #7788A8 */
+    --muted:             224 20% 22%;   /* fondos secundarios claramente distintos */
+    --muted-foreground:  218 18% 68%;   /* texto secundario legible */
 
-    /* ── Accent: Azul Tech (igual a secondary) ─ */
-    --accent:            199 88% 48%;
+    /* ── Accent ─────────────────────────────── */
+    --accent:            199 90% 52%;
     --accent-foreground: 222 22% 5%;
 
     /* ── Destructivo: Rojo ──────────────────── */
-    --destructive:       0 70% 52%;     /* #D93333 */
-    --destructive-foreground: 210 15% 92%;
+    --destructive:       0 72% 56%;
+    --destructive-foreground: 210 20% 95%;
 
     /* ── Borders / Inputs / Ring ────────────── */
-    --border:            224 18% 14%;   /* #1B2133 — borde sutil */
-    --input:             224 20% 11%;   /* #141925 — input oscuro */
-    --ring:              142 70% 45%;   /* verde — focus ring */
+    --border:            224 20% 28%;   /* borde claramente visible */
+    --input:             224 22% 20%;   /* input con contraste suficiente */
+    --ring:              142 72% 48%;   /* focus ring verde */
 
     --radius: 0.5rem;
 
     /* ── Sidebar ────────────────────────────── */
-    --sidebar-background:        224 22% 6%;
-    --sidebar-foreground:        210 15% 78%;
-    --sidebar-primary:           142 70% 45%;
+    --sidebar-background:        224 22% 8%;
+    --sidebar-foreground:        210 18% 82%;
+    --sidebar-primary:           142 72% 48%;
     --sidebar-primary-foreground: 222 22% 5%;
-    --sidebar-accent:            224 18% 13%;
-    --sidebar-accent-foreground: 210 15% 92%;
-    --sidebar-border:            224 18% 14%;
-    --sidebar-ring:              142 70% 45%;
+    --sidebar-accent:            224 20% 22%;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border:            224 20% 28%;
+    --sidebar-ring:              142 72% 48%;
   }
 
   /* Dark class — idéntica al root (la app siempre es oscura) */
   .dark {
     --background:        222 22% 5%;
-    --foreground:        210 15% 92%;
-    --card:              224 20% 8%;
-    --card-foreground:   210 15% 92%;
-    --popover:           224 20% 9%;
-    --popover-foreground: 210 15% 92%;
-    --primary:           142 70% 45%;
+    --foreground:        210 20% 95%;
+    --card:              224 22% 15%;
+    --card-foreground:   210 20% 95%;
+    --popover:           224 22% 16%;
+    --popover-foreground: 210 20% 95%;
+    --primary:           142 72% 48%;
     --primary-foreground: 222 22% 5%;
-    --secondary:         199 88% 48%;
+    --secondary:         199 90% 52%;
     --secondary-foreground: 222 22% 5%;
-    --muted:             224 18% 13%;
-    --muted-foreground:  218 14% 52%;
-    --accent:            199 88% 48%;
+    --muted:             224 20% 22%;
+    --muted-foreground:  218 18% 68%;
+    --accent:            199 90% 52%;
     --accent-foreground: 222 22% 5%;
-    --destructive:       0 70% 52%;
-    --destructive-foreground: 210 15% 92%;
-    --border:            224 18% 14%;
-    --input:             224 20% 11%;
-    --ring:              142 70% 45%;
-    --sidebar-background:        224 22% 6%;
-    --sidebar-foreground:        210 15% 78%;
-    --sidebar-primary:           142 70% 45%;
+    --destructive:       0 72% 56%;
+    --destructive-foreground: 210 20% 95%;
+    --border:            224 20% 28%;
+    --input:             224 22% 20%;
+    --ring:              142 72% 48%;
+    --sidebar-background:        224 22% 8%;
+    --sidebar-foreground:        210 18% 82%;
+    --sidebar-primary:           142 72% 48%;
     --sidebar-primary-foreground: 222 22% 5%;
-    --sidebar-accent:            224 18% 13%;
-    --sidebar-accent-foreground: 210 15% 92%;
-    --sidebar-border:            224 18% 14%;
-    --sidebar-ring:              142 70% 45%;
+    --sidebar-accent:            224 20% 22%;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border:            224 20% 28%;
+    --sidebar-ring:              142 72% 48%;
   }
 }
 
@@ -106,10 +106,10 @@
     background: hsl(222 22% 5%);
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(224 18% 18%);
+    background: hsl(224 20% 28%);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(142 70% 45% / 0.5);
+    background: hsl(142 72% 48% / 0.6);
   }
 }

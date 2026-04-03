@@ -6,7 +6,7 @@ import { useMyPredictions, useUpsertPrediction } from '@/hooks/usePredictions'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
-import { Lock, Clock } from 'lucide-react'
+import { Lock, Clock, CheckCircle2 } from 'lucide-react'
 import { format, isPast, addMinutes } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
@@ -35,37 +35,42 @@ function PredictionToggle({ matchId, pollaId, participantId, currentPick, equipo
     }
   }
 
-  const btnBase = 'flex-1 py-2 px-1 rounded-lg text-xs font-semibold border-2 transition-all text-center cursor-pointer select-none'
-  const active = 'border-blue-600 bg-blue-600 text-white shadow-md scale-105'
-  const inactive = 'border-muted bg-background text-muted-foreground hover:border-blue-400 hover:text-blue-600'
-  const disabledCls = 'opacity-50 cursor-not-allowed'
+  const btnBase = 'flex-1 py-2.5 px-1 rounded-xl text-xs font-bold border-2 transition-all text-center cursor-pointer select-none'
+
+  const options: { value: Pick; label: string; active: string; inactive: string }[] = [
+    {
+      value: 'A_wins',
+      label: equipoA,
+      active:   'border-emerald-400 bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-105',
+      inactive: 'border-border bg-muted text-foreground hover:border-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300',
+    },
+    {
+      value: 'draw',
+      label: 'Empate',
+      active:   'border-amber-400 bg-amber-500 text-white shadow-lg shadow-amber-500/30 scale-105',
+      inactive: 'border-border bg-muted text-foreground hover:border-amber-400 hover:bg-amber-500/10 hover:text-amber-300',
+    },
+    {
+      value: 'B_wins',
+      label: equipoB,
+      active:   'border-sky-400 bg-sky-500 text-white shadow-lg shadow-sky-500/30 scale-105',
+      inactive: 'border-border bg-muted text-foreground hover:border-sky-400 hover:bg-sky-500/10 hover:text-sky-300',
+    },
+  ]
 
   return (
-    <div className={cn('flex gap-2 mt-2', disabled && disabledCls)}>
-      <button
-        type="button"
-        className={cn(btnBase, currentPick === 'A_wins' ? active : inactive)}
-        onClick={() => pick('A_wins')}
-        disabled={disabled || upsert.isPending}
-      >
-        {equipoA}
-      </button>
-      <button
-        type="button"
-        className={cn(btnBase, currentPick === 'draw' ? active : inactive)}
-        onClick={() => pick('draw')}
-        disabled={disabled || upsert.isPending}
-      >
-        Empate
-      </button>
-      <button
-        type="button"
-        className={cn(btnBase, currentPick === 'B_wins' ? active : inactive)}
-        onClick={() => pick('B_wins')}
-        disabled={disabled || upsert.isPending}
-      >
-        {equipoB}
-      </button>
+    <div className={cn('flex gap-2 mt-3', disabled && 'opacity-60 pointer-events-none')}>
+      {options.map(opt => (
+        <button
+          key={opt.value}
+          type="button"
+          className={cn(btnBase, currentPick === opt.value ? opt.active : opt.inactive)}
+          onClick={() => pick(opt.value)}
+          disabled={disabled || upsert.isPending}
+        >
+          {opt.label}
+        </button>
+      ))}
     </div>
   )
 }
@@ -90,10 +95,12 @@ export default function Predicciones() {
 
   if (participant.status === 'pending') {
     return (
-      <div className="p-6 text-center">
-        <Clock className="h-10 w-10 mx-auto mb-3 text-yellow-500" />
-        <h2 className="font-semibold mb-1">Solicitud pendiente</h2>
-        <p className="text-sm text-muted-foreground">
+      <div className="p-8 flex flex-col items-center gap-3 text-center">
+        <div className="w-16 h-16 rounded-full bg-amber-500/15 border-2 border-amber-400 flex items-center justify-center">
+          <Clock className="h-8 w-8 text-amber-400" />
+        </div>
+        <h2 className="font-bold text-lg">Solicitud pendiente</h2>
+        <p className="text-sm text-muted-foreground max-w-xs">
           El admin debe aprobar tu solicitud antes de que puedas hacer predicciones.
         </p>
       </div>
@@ -102,22 +109,27 @@ export default function Predicciones() {
 
   if (participant.status === 'blocked') {
     return (
-      <div className="p-6 text-center text-destructive">
-        <p>Tu acceso a esta polla ha sido bloqueado.</p>
+      <div className="p-8 text-center text-destructive">
+        <p className="font-semibold">Tu acceso a esta polla ha sido bloqueado.</p>
       </div>
     )
   }
 
   return (
     <div className="p-4 space-y-6">
-      <div className="pt-4">
-        <h1 className="text-xl font-bold">Mis predicciones</h1>
-        <p className="text-sm text-muted-foreground">Apodo: <strong>{participant.apodo}</strong></p>
+      {/* Header */}
+      <div className="pt-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight">Mis predicciones</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Jugando como <span className="text-primary font-semibold">{participant.apodo}</span>
+          </p>
+        </div>
       </div>
 
       {jornadas.length === 0 && (
-        <Card className="border-dashed">
-          <CardContent className="py-8 text-center text-muted-foreground text-sm">
+        <Card className="border-dashed border-border">
+          <CardContent className="py-10 text-center text-muted-foreground text-sm">
             El admin no ha creado partidos todavía.
           </CardContent>
         </Card>
@@ -130,9 +142,12 @@ export default function Predicciones() {
 
         return (
           <section key={jornada.id} className="space-y-3">
-            <div className="flex items-center gap-2">
-              <h2 className="font-semibold">{jornada.nombre}</h2>
-              <Badge variant="secondary">{jornada.puntos_por_acierto} pts</Badge>
+            {/* Jornada header */}
+            <div className="flex items-center gap-2 px-1">
+              <h2 className="font-bold text-base">{jornada.nombre}</h2>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30">
+                {jornada.puntos_por_acierto} pts por acierto
+              </span>
             </div>
 
             {unlocked.map(match => {
@@ -140,28 +155,51 @@ export default function Predicciones() {
               const cutoff = addMinutes(kickoff, -1)
               const isLocked = isPast(cutoff)
               const myPick = myPredictions[match.id]?.pick
+              const isCorrect = myPick && match.resultado && myPick === match.resultado
 
               return (
-                <Card key={match.id} className={cn(isLocked && 'opacity-80')}>
-                  <CardContent className="py-3 px-4 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
-                        {match.equipo_a} <span className="text-muted-foreground">vs</span> {match.equipo_b}
+                <Card
+                  key={match.id}
+                  className={cn(
+                    'border overflow-hidden transition-all',
+                    isLocked
+                      ? 'border-border/60 opacity-80'
+                      : 'border-border hover:border-primary/40',
+                    isCorrect && 'border-emerald-500/50'
+                  )}
+                >
+                  {/* Top color stripe */}
+                  <div className={cn(
+                    'h-1',
+                    isLocked ? 'bg-muted' : 'bg-gradient-to-r from-primary/60 to-secondary/60'
+                  )} />
+
+                  <CardContent className="py-3 px-4 space-y-2">
+                    {/* Teams + status */}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-bold">
+                        {match.equipo_a}
+                        <span className="text-muted-foreground font-normal mx-1.5">vs</span>
+                        {match.equipo_b}
                       </span>
                       {isLocked ? (
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full shrink-0">
                           <Lock className="h-3 w-3" /> Cerrado
                         </span>
                       ) : (
-                        <span className="text-xs text-green-600 font-medium">Abierto</span>
+                        <span className="flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full shrink-0">
+                          Abierto
+                        </span>
                       )}
                     </div>
 
+                    {/* Date/time */}
                     <p className="text-xs text-muted-foreground">
                       {format(kickoff, "d MMM yyyy, HH:mm", { locale: es })}
                       {match.estadio && <> · {match.estadio}</>}
                     </p>
 
+                    {/* Prediction buttons */}
                     <PredictionToggle
                       matchId={match.id}
                       pollaId={pollaId!}
@@ -172,26 +210,34 @@ export default function Predicciones() {
                       disabled={isLocked}
                     />
 
+                    {/* Warnings & result */}
                     {isLocked && !myPick && (
-                      <p className="text-xs text-orange-600 mt-1">
+                      <p className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg px-2 py-1.5 mt-1">
                         No predijiste — quedaste con Empate por defecto.
                       </p>
                     )}
 
                     {myPick && myPredictions[match.id]?.is_default && (
-                      <p className="text-xs text-orange-500 mt-1">Empate asignado automáticamente.</p>
+                      <p className="text-xs text-amber-400 mt-1">Empate asignado automáticamente.</p>
                     )}
 
                     {match.resultado && (
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex items-center gap-2 mt-1 pt-2 border-t border-border/60">
                         <span className="text-xs text-muted-foreground">Resultado:</span>
-                        <Badge variant="outline" className="text-xs">
+                        <span className="text-xs font-bold text-foreground">
                           {match.resultado === 'A_wins' ? match.equipo_a :
                            match.resultado === 'B_wins' ? match.equipo_b : 'Empate'}
-                        </Badge>
+                        </span>
                         {myPick && (
-                          <span className={cn('text-xs font-medium', myPick === match.resultado ? 'text-green-600' : 'text-red-500')}>
-                            {myPick === match.resultado ? `+${jornada.puntos_por_acierto} pts` : '0 pts'}
+                          <span className={cn(
+                            'ml-auto flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full',
+                            myPick === match.resultado
+                              ? 'text-emerald-400 bg-emerald-500/15 border border-emerald-500/30'
+                              : 'text-muted-foreground bg-muted'
+                          )}>
+                            {myPick === match.resultado
+                              ? <><CheckCircle2 className="h-3 w-3" /> +{jornada.puntos_por_acierto} pts</>
+                              : '0 pts'}
                           </span>
                         )}
                       </div>
