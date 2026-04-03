@@ -152,8 +152,17 @@ export function useUpdateMatch() {
         .eq('id', matchId)
       if (error) throw error
     },
-    onSuccess: (_data, { pollaId }) => {
-      qc.invalidateQueries({ queryKey: ['matches', pollaId] })
+    onSuccess: (_data, { matchId, pollaId, updates }) => {
+      // Patch the match in-place so the array order never changes.
+      // invalidateQueries would trigger a full refetch that can reorder items;
+      // instead we surgically update only the modified fields.
+      qc.setQueryData(
+        ['matches', pollaId, undefined],
+        (old: Array<Record<string, unknown>> | undefined) =>
+          old?.map(m => (m['id'] === matchId ? { ...m, ...updates } : m)) ?? old,
+      )
+      // Also mark per-jornada queries stale for next navigation (no immediate refetch)
+      qc.invalidateQueries({ queryKey: ['matches', pollaId], refetchType: 'none' })
     },
   })
 }
