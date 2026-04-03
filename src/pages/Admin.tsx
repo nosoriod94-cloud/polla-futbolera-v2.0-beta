@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast'
 import {
   ArrowLeft, Plus, Download, Lock, Unlock, CheckCircle, XCircle, Clock,
-  Pencil, Trash2, Copy, Users, AlertTriangle, Upload, Check, X,
+  Pencil, Trash2, Copy, Users, AlertTriangle, Upload, Check, X, RefreshCw,
 } from 'lucide-react'
 import type { MatchResult } from '@/lib/database.types'
 import { format } from 'date-fns'
@@ -135,7 +135,7 @@ export default function Admin() {
   const { toast } = useToast()
 
   const { data: polla, isLoading: loadingPolla } = usePolla(pollaId)
-  const { data: participants = [] } = useParticipants(pollaId)
+  const { data: participants = [], isFetching: fetchingParticipants, refetch: refetchParticipants } = useParticipants(pollaId)
   const { data: limitRequest } = useLimitRequest(pollaId)
   const requestLimit = useRequestParticipantLimit()
   const { data: jornadas = [] } = useJornadas(pollaId)
@@ -439,6 +439,17 @@ export default function Admin() {
 
         {/* ===== PARTICIPANTES ===== */}
         <TabsContent value="participantes" className="space-y-3 mt-4">
+          <div className="flex items-center justify-between">
+            <Button
+              size="sm" variant="ghost"
+              className="text-xs text-muted-foreground -ml-2"
+              onClick={() => refetchParticipants()}
+              disabled={fetchingParticipants}
+            >
+              <RefreshCw className={`h-3.5 w-3.5 mr-1 ${fetchingParticipants ? 'animate-spin' : ''}`} />
+              {fetchingParticipants ? 'Actualizando...' : 'Actualizar'}
+            </Button>
+          </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />

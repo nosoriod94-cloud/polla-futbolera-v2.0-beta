@@ -56,8 +56,9 @@ export function useParticipants(pollaId: string | undefined) {
   return useQuery({
     queryKey: ['participants', pollaId],
     enabled: !!pollaId,
-    // Polling cada 15s como fallback si Realtime no está disponible
-    refetchInterval: 15_000,
+    staleTime: 0,                // siempre considerar datos obsoletos
+    refetchOnMount: 'always',    // refetch cada vez que el componente monta
+    refetchInterval: 15_000,     // polling cada 15s como fallback
     queryFn: async () => {
       const { data, error } = await supabase
         .from('polla_participants')
