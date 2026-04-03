@@ -881,7 +881,9 @@ export default function Admin() {
                     <p className="text-xs text-muted-foreground pl-2">Sin partidos en esta jornada.</p>
                   ) : (
                     jornadaMatches.map(match => {
-                      const isPast = new Date(match.fecha_hora) <= new Date(Date.now() - 60_000)
+                      // isTimeLocked: el sistema cierra las predicciones 1 min antes del inicio
+                      const isTimeLocked = new Date(match.fecha_hora) <= new Date(Date.now() + 60_000)
+                      const isPast      = new Date(match.fecha_hora) <= new Date()
                       return (
                         <Card key={match.id} className="text-sm">
                           <CardContent className="py-3 px-4 space-y-2">
@@ -907,28 +909,60 @@ export default function Admin() {
                                 </Button>
                               </div>
                             </div>
+
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
                               <span>{formatBogota(match.fecha_hora)}</span>
                               {match.estadio && <span>{match.estadio}</span>}
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                size="sm" variant={match.is_unlocked ? 'default' : 'outline'}
-                                className={`h-7 text-xs ${match.is_unlocked ? 'bg-green-600 hover:bg-green-700' : ''}`}
-                                disabled={isPast}
-                                onClick={() => toggleUnlock(match)}
-                              >
-                                {match.is_unlocked
-                                  ? <><Unlock className="h-3 w-3 mr-1" />Abierto</>
-                                  : <><Lock className="h-3 w-3 mr-1" />Cerrado</>}
-                              </Button>
+
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {/* ── Estado de predicciones ── */}
+                              {isTimeLocked ? (
+                                // Cerrado automáticamente por el sistema (T-1 min o pasado)
+                                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                                  <Lock className="h-3 w-3" />
+                                  {isPast ? 'Cerrado · partido jugado' : 'Cierre automático · 1 min'}
+                                </span>
+                              ) : match.is_unlocked ? (
+                                // Abierto → mostrar botón para bloquear anticipadamente
+                                <div className="flex items-center gap-2">
+                                  <span className="inline-flex items-center gap-1 text-xs text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                                    <Unlock className="h-3 w-3" />
+                                    Abierto · predicciones activas
+                                  </span>
+                                  <Button
+                                    size="sm" variant="outline"
+                                    className="h-6 text-xs border-orange-300 text-orange-600 hover:bg-orange-50 px-2"
+                                    onClick={() => toggleUnlock(match)}
+                                  >
+                                    <Lock className="h-3 w-3 mr-1" /> Bloquear
+                                  </Button>
+                                </div>
+                              ) : (
+                                // Bloqueado manualmente por el admin
+                                <div className="flex items-center gap-2">
+                                  <span className="inline-flex items-center gap-1 text-xs text-orange-700 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-full">
+                                    <Lock className="h-3 w-3" />
+                                    Bloqueado por el admin
+                                  </span>
+                                  <Button
+                                    size="sm" variant="outline"
+                                    className="h-6 text-xs border-green-300 text-green-600 hover:bg-green-50 px-2"
+                                    onClick={() => toggleUnlock(match)}
+                                  >
+                                    <Unlock className="h-3 w-3 mr-1" /> Abrir
+                                  </Button>
+                                </div>
+                              )}
+
+                              {/* ── Resultado ── */}
                               {match.resultado && (
                                 <Badge variant="outline" className="text-xs">
                                   Resultado: {resultLabels[match.resultado]}
                                 </Badge>
                               )}
                               {isPast && !match.resultado && (
-                                <span className="text-xs text-orange-600">Partido pasado — falta resultado</span>
+                                <span className="text-xs text-orange-600">Falta ingresar resultado</span>
                               )}
                             </div>
                           </CardContent>

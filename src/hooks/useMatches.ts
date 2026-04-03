@@ -109,6 +109,7 @@ export function useCreateMatch() {
           equipo_b: equipoB,
           fecha_hora: fechaHora,
           estadio: estadio || null,
+          is_unlocked: true, // abierto por defecto; se cierra solo 1 min antes
         })
         .select()
         .single()
